@@ -5,6 +5,7 @@ const Products = require("../Modules/Products");
 exports.userSignup = async (req, res) => {
   try {
     const useremail = await Userlogin.findOne({ username: req.body.username });
+    // check user exist or not
     if (useremail == null && !useremail) {
       const userObj = new Userlogin({
         firstname: req.body.firstname,
@@ -12,6 +13,7 @@ exports.userSignup = async (req, res) => {
         username: req.body.username,
         password: req.body.password,
       });
+      //then saved into database
       userObj
         .save()
         .then((response) => {
@@ -28,13 +30,17 @@ exports.userSignup = async (req, res) => {
   }
 };
 exports.userLogin = async (req, res) => {
+  //checking user existing or not
   const login = await Userlogin.findOne({ username: req.body.username });
   if (login === null || 0) {
     res.json({ messeage: "user not exits" });
   } else if (login !== null) {
+    //if user exist with username
     if (req.body.password) {
+      //compare password
       const userdata = await bcrypt.compare(req.body.password, login.password);
       if (userdata) {
+        //genrate token
         const token = jwt.sign(
           { username: login.username, id: login._id },
           process.env.SECRET_KEY
